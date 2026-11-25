@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест: Аралас сандарды қосу. Аралас сандарды азайту — 5Ә</title>
+<style>
+  /* ===== Академиялық дизайн ===== */
+  :root{
+    --ink:#1d2430; --muted:#5b6575; --line:#d5d9e0; --bg:#f4f5f7; --paper:#ffffff;
+    --accent:#1f3a5f; --accent-soft:#e8edf4; --ok:#2e6b3f; --bad:#9b2c2c; --warn:#8a5a00;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:"Times New Roman",Georgia,serif;font-size:18px;line-height:1.5}
+  body{min-height:100vh;display:flex;justify-content:center;padding:24px 12px;-webkit-user-select:none;user-select:none}
+  .sheet{width:100%;max-width:760px;background:var(--paper);border:1px solid var(--line);padding:32px 36px}
+  @media (max-width:560px){.sheet{padding:22px 16px} html,body{font-size:17px}}
+  h1{font-size:1.45rem;font-weight:normal;color:var(--accent);text-align:center;margin-bottom:6px}
+  h2{font-size:1.15rem;font-weight:bold;text-align:center;margin-bottom:4px}
+  .center{text-align:center}
+  .muted{color:var(--muted)}
+  .rule{border:0;border-top:1px solid var(--line);margin:18px 0}
+  .meta{font-size:.95rem;color:var(--muted);text-align:center}
+  .meta b{color:var(--ink);font-weight:normal}
+  label{display:block;font-size:.95rem;margin:16px 0 6px}
+  input[type=text],select{width:100%;padding:10px 12px;font:inherit;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:2px}
+  input[type=text]:focus,select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  .btn{display:inline-block;font:inherit;padding:10px 26px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;border-radius:2px}
+  .btn:disabled{background:#c9ced6;border-color:#c9ced6;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--accent)}
+  .actions{margin-top:26px;text-align:right}
+  .rules{font-size:.92rem;color:var(--muted);margin-top:18px;padding-left:20px}
+  .rules li{margin:3px 0}
+
+  /* Сұрақ беті */
+  .qhead{display:flex;justify-content:space-between;align-items:center;font-size:.95rem;color:var(--muted);gap:10px}
+  .timer{font-family:"Courier New",monospace;font-size:1.05rem;color:var(--ink);border:1px solid var(--line);padding:2px 10px}
+  .timer.low{color:var(--bad);border-color:var(--bad)}
+  .progress{height:3px;background:var(--line);margin:10px 0 22px}
+  .progress > div{height:100%;background:var(--accent)}
+  .goal{font-size:.82rem;color:var(--muted)}
+  .qtext{font-size:1.15rem;margin:6px 0 22px}
+  .opts{list-style:none}
+  .opt{display:flex;align-items:center;gap:14px;border:1px solid var(--line);padding:10px 14px;margin-bottom:10px;cursor:pointer;border-radius:2px}
+  .opt:hover{background:#fafbfc}
+  .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .opt .let{width:28px;height:28px;flex:0 0 28px;border:1px solid var(--muted);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+  .opt.sel .let{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* Бөлшектер */
+  .mx{display:inline-flex;align-items:center;vertical-align:middle;margin:0 2px}
+  .mx .w{margin-right:2px}
+  .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.85em;line-height:1.1;margin:0 2px}
+  .fr .n{border-bottom:1px solid currentColor;padding:0 3px}
+  .fr .d{padding:0 3px}
+
+  /* Сандық жауап + пернетақта */
+  .numbox{max-width:360px}
+  .numbox input{font-family:"Courier New",monospace;font-size:1.3rem;text-align:center;letter-spacing:1px}
+  .hint{font-size:.85rem;color:var(--muted);margin-top:6px}
+  .pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .pad button{font:inherit;font-size:1.15rem;padding:12px 0;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;border-radius:2px;touch-action:manipulation}
+  .pad button:active{background:var(--accent-soft)}
+  .pad .fn{background:#f2f4f7}
+
+  /* Модаль */
+  .overlay{position:fixed;inset:0;background:rgba(20,25,35,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+  .overlay.show{display:flex}
+  .modal{background:#fff;max-width:440px;width:100%;padding:24px;border-top:4px solid var(--warn)}
+  .modal h3{font-size:1.1rem;margin-bottom:10px;color:var(--warn)}
+  .modal p{font-size:.98rem;margin-bottom:8px}
+
+  /* Нәтиже */
+  table.res{width:100%;border-collapse:collapse;margin-top:16px;font-size:.98rem}
+  table.res td{border:1px solid var(--line);padding:8px 12px}
+  table.res td:first-child{color:var(--muted);width:55%}
+  .big{font-size:2.2rem;text-align:center;color:var(--accent);margin:14px 0 4px}
+  .status{font-size:.9rem;text-align:center;margin-top:14px}
+  .status.ok{color:var(--ok)} .status.bad{color:var(--bad)}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- ===== 1. Бастапқы терезе ===== -->
+  <section id="start">
+    <p class="meta">Пән: <b>Математика</b> · 5-сынып</p>
+    <h1>Тест</h1>
+    <h2>«Аралас сандарды қосу. Аралас сандарды азайту»</h2>
+    <p class="meta">Оқу мақсаттары: 5.1.2.19; 5.1.2.20</p>
+    <p class="meta" style="margin-top:8px">Математика пәнінің мұғалімі – <b>Кунгозин Даулет Багдашұлы</b></p>
+    <hr class="rule">
+
+    <label for="fio">Тегі, аты (ФИ)</label>
+    <input type="text" id="fio" autocomplete="off" placeholder="Введите ФИ">
+
+    <label for="klass">Сынып</label>
+    <select id="klass">
+      <option value="">— таңдаңыз —</option>
+      <option value="5Ә">5Ә</option>
+    </select>
+
+    <label for="variant">Нұсқа</label>
+    <select id="variant">
+      <option value="">— таңдаңыз —</option>
+      <option value="1">1-нұсқа</option>
+      <option value="2">2-нұсқа</option>
+    </select>
+
+    <ul class="rules">
+      <li>Тест 10 сұрақтан тұрады: 8 сұрақ — бір дұрыс жауапты таңдау, 2 сұрақ — санды енгізу.</li>
+      <li>Әр сұраққа — 3 минут. Уақыт біткенде келесі сұраққа автоматты түрде өтеді.</li>
+      <li>Әр дұрыс жауап — 1 балл. Ең жоғары балл — 10.</li>
+      <li>Тест кезінде бетті жабуға немесе басқа қойындыға өтуге болмайды: бұл жағдайда баға 1 балға төмендетіледі.</li>
+    </ul>
+
+    <div class="actions"><button class="btn" id="btnStart" disabled>Келесі →</button></div>
+  </section>
+
+  <!-- ===== 2. Сұрақ беті ===== -->
+  <section id="quiz" class="hidden">
+    <div class="qhead">
+      <span id="qnum">Сұрақ 1 / 10</span>
+      <span class="timer" id="timer">03:00</span>
+    </div>
+    <div class="progress"><div id="bar" style="width:0%"></div></div>
+    <div class="goal" id="goal"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="answerArea"></div>
+    <div class="actions"><button class="btn" id="btnNext">Келесі →</button></div>
+  </section>
+
+  <!-- ===== 3. Нәтиже ===== -->
+  <section id="result" class="hidden">
+    <h1>Тест аяқталды</h1>
+    <p class="center muted" id="resName"></p>
+    <div class="big" id="resScore"></div>
+    <p class="center muted">балл (ең жоғары — 10)</p>
+    <table class="res" id="resTable"></table>
+    <p class="status" id="sendStatus">Нәтиже мұғалімге жіберілуде…</p>
+    <div class="actions center hidden" id="retryBox"><button class="btn ghost" id="btnRetry">Қайта жіберу</button></div>
+  </section>
+</div>
+
+<!-- Ескерту терезесі -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>Ескерту!</h3>
+    <p>Сіз тест бетінен шықтыңыз (қойындыны жаптыңыз немесе басқа терезеге өттіңіз).</p>
+    <p><b>Қойындыны жапқан жағдайда баға 1 балға төмендетіледі.</b></p>
+    <p class="muted" id="blurInfo"></p>
+    <p class="muted"><i>Предупреждение: при сворачивании вкладки оценка будет снижена на 1 балл.</i></p>
+    <div class="actions"><button class="btn" id="btnOk">Түсіндім, жалғастыру</button></div>
+  </div>
+</div>
+
+<script>
+/* ==================== БАПТАУ ====================
+   Apps Script-ті «Веб-қосымша» ретінде жариялағаннан кейін
+   алынған сілтемені осы жерге қойыңыз:                       */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzl1RNX_TybqhKu5vnlAovcs-JS1GlS8pCAVntVisGJeQ-1mTG8wX4Q8iYbWgr1s_m5TQ/exec";
+const TIME_PER_Q = 180;   // 3 минут
+const MAX_SCORE  = 10;
+const PENALTY    = 1;     // қойындыны жапқаны үшін айыппұл
+
+/* ==================== СҰРАҚТАР ====================
+   Белгілеу: [5/8] — жай бөлшек, [4 5/7] — аралас сан.
+   mc — бір дұрыс жауап (a — дұрыс нұсқаның индексі), num — санды енгізу. */
+const VARIANTS = {
+  1: [
+    {t:"mc", g:"5.1.2.19", q:"Айырманы табыңыз:&nbsp; 1 − [3/8]", o:["[5/8]","[3/8]","[2/8]","[4/8]"], a:0},
+    {t:"mc", g:"5.1.2.19", q:"Айырманы табыңыз:&nbsp; 5 − [2/7]", o:["[4 5/7]","[5 2/7]","[3 5/7]","[4 2/7]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Қосындыны табыңыз:&nbsp; [2 1/9] + [3 4/9]", o:["[5 5/9]","[5 4/9]","[6 5/9]","[5 5/18]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Айырманы табыңыз:&nbsp; [6 5/8] − [2 3/8]", o:["[4 1/4]","[4 2/16]","[8 1/4]","[3 1/4]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Қосындыны табыңыз:&nbsp; [3 3/4] + [1 2/4]", o:["[5 1/4]","[4 5/8]","[4 1/4]","[5 1/2]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Айырманы табыңыз:&nbsp; 7 − [3 2/5]", o:["[3 3/5]","[4 2/5]","[4 3/5]","[3 2/5]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Айырманы табыңыз:&nbsp; [5 1/6] − [2 5/6]", o:["[2 1/3]","[3 2/3]","[2 2/3]","[3 1/3]"], a:0},
+    {t:"mc", g:"5.1.2.19", q:"Ыдыста 4 л су болды. Одан [1 3/10] л су құйып алынды. Ыдыста қанша литр су қалды?", o:["[2 7/10] л","[3 7/10] л","[2 3/10] л","[3 3/10] л"], a:0},
+    {t:"num",g:"5.1.2.20", q:"Қосындыны есептеңіз:&nbsp; [3 4/7] + [2 3/7]<br><span class='muted' style='font-size:.9rem'>Жауапты сан түрінде енгізіңіз.</span>", a:6},
+    {t:"num",g:"5.1.2.20", q:"Теңдеуді шешіңіз:&nbsp; <i>x</i> − [1 3/4] = [2 1/4]<br><span class='muted' style='font-size:.9rem'><i>x</i>-тің мәнін сан түрінде енгізіңіз.</span>", a:4}
+  ],
+  2: [
+    {t:"mc", g:"5.1.2.19", q:"Айырманы табыңыз:&nbsp; 1 − [5/9]", o:["[4/9]","[5/9]","[1/9]","[6/9]"], a:0},
+    {t:"mc", g:"5.1.2.19", q:"Айырманы табыңыз:&nbsp; 4 − [3/5]", o:["[3 2/5]","[4 3/5]","[3 3/5]","[2 2/5]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Қосындыны табыңыз:&nbsp; [3 2/11] + [4 5/11]", o:["[7 7/11]","[7 7/22]","[7 3/11]","[8 7/11]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Айырманы табыңыз:&nbsp; [8 7/10] − [3 3/10]", o:["[5 2/5]","[11 2/5]","[4 2/5]","[5 4/20]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Қосындыны табыңыз:&nbsp; [2 5/6] + [3 4/6]", o:["[6 1/2]","[5 9/12]","[5 1/2]","[6 1/3]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Айырманы табыңыз:&nbsp; 9 − [4 3/8]", o:["[4 5/8]","[5 3/8]","[5 5/8]","[4 3/8]"], a:0},
+    {t:"mc", g:"5.1.2.20", q:"Айырманы табыңыз:&nbsp; [6 2/9] − [3 7/9]", o:["[2 4/9]","[3 5/9]","[2 5/9]","[3 4/9]"], a:0},
+    {t:"mc", g:"5.1.2.19", q:"Арқанның ұзындығы 5 м. Одан [2 4/7] м кесіп алынды. Арқанның қанша метрі қалды?", o:["[2 3/7] м","[3 3/7] м","[2 4/7] м","[3 4/7] м"], a:0},
+    {t:"num",g:"5.1.2.20", q:"Қосындыны есептеңіз:&nbsp; [4 5/8] + [3 3/8]<br><span class='muted' style='font-size:.9rem'>Жауапты сан түрінде енгізіңіз.</span>", a:8},
+    {t:"num",g:"5.1.2.20", q:"Теңдеуді шешіңіз:&nbsp; <i>x</i> − [2 2/5] = [3 3/5]<br><span class='muted' style='font-size:.9rem'><i>x</i>-тің мәнін сан түрінде енгізіңіз.</span>", a:6}
+  ]
+};
+
+/* ==================== КӨМЕКШІ ФУНКЦИЯЛАР ==================== */
+const $ = id => document.getElementById(id);
+function fmt(s){
+  return s.replace(/\[(?:(\d+) )?(\d+)\/(\d+)\]/g, (m,w,n,d) => {
+    const f = `<span class="fr"><span class="n">${n}</span><span class="d">${d}</span></span>`;
+    return w ? `<span class="mx"><span class="w">${w}</span>${f}</span>` : f;
+  });
+}
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function parseNum(s){
+  if(s==null) return NaN;
+  s = String(s).trim().replace(/−/g,"-").replace(",",".");
+  if(!/^-?\d+(\.\d+)?$/.test(s)) return NaN;
+  return parseFloat(s);
+}
+const pad2 = n => String(n).padStart(2,"0");
+
+/* ==================== КҮЙ ==================== */
+let st = null;   // {fio, klass, variant, qs, idx, answers[], blurs, started, timeLeft}
+let timerId = null;
+
+/* ===== Бастапқы терезе ===== */
+function checkStart(){
+  $("btnStart").disabled = !($("fio").value.trim().length >= 3 && $("klass").value && $("variant").value);
+}
+["fio","klass","variant"].forEach(id => { $(id).addEventListener("input",checkStart); $(id).addEventListener("change",checkStart); });
+
+$("btnStart").onclick = () => {
+  const v = $("variant").value;
+  const qs = VARIANTS[v].map(q => {
+    if(q.t !== "mc") return q;
+    const order = shuffle(q.o.map((_,i)=>i));
+    return {...q, o: order.map(i=>q.o[i]), a: order.indexOf(q.a)};
+  });
+  st = { fio:$("fio").value.trim().replace(/\s+/g," "), klass:$("klass").value, variant:v,
+         qs, idx:0, answers:new Array(qs.length).fill(null), blurs:0, started:Date.now(), timeLeft:TIME_PER_Q };
+  $("start").classList.add("hidden");
+  $("quiz").classList.remove("hidden");
+  showQ();
+};
+
+/* ===== Сұрақты көрсету ===== */
+function showQ(){
+  const q = st.qs[st.idx], n = st.qs.length;
+  $("qnum").textContent = `Сұрақ ${st.idx+1} / ${n}`;
+  $("bar").style.width = (st.idx / n * 100) + "%";
+  $("goal").textContent = "Оқу мақсаты: " + q.g + (q.t==="num" ? " · санды енгізу" : " · бір дұрыс жауап");
+  $("qtext").innerHTML = (st.idx+1) + ". " + fmt(q.q);
+  $("btnNext").textContent = st.idx === n-1 ? "Тестті аяқтау" : "Келесі →";
+  const area = $("answerArea");
+
+  if(q.t === "mc"){
+    const L = ["A","B","C","D"];
+    area.innerHTML = `<ul class="opts">${q.o.map((o,i)=>
+      `<li class="opt" data-i="${i}"><span class="let">${L[i]}</span><span>${fmt(o)}</span></li>`).join("")}</ul>`;
+    area.querySelectorAll(".opt").forEach(el => el.onclick = () => {
+      area.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));
+      el.classList.add("sel");
+      st.answers[st.idx] = +el.dataset.i;
+    });
+  } else {
+    area.innerHTML = `
+      <div class="numbox">
+        <input type="text" id="numIn" inputmode="none" autocomplete="off" placeholder="Жауап">
+        <div class="hint">Төмендегі батырмаларды пайдаланыңыз. Бөлшек бөлігі үтір арқылы жазылады.</div>
+        <div class="pad">
+          <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="fn" data-k="back">⌫</button>
+          <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="fn" data-k="C">C</button>
+          <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="fn" data-k="minus">−</button>
+          <button data-k="0">0</button><button class="fn" data-k="comma">,</button><button class="fn" data-k="pm">±</button><button class="fn" data-k="none" disabled style="visibility:hidden"></button>
+        </div>
+      </div>`;
+    const inp = $("numIn");
+    const set = v => { inp.value = v; st.answers[st.idx] = v; };
+    // физикалық пернетақтадан енгізу (компьютер үшін) — тек рұқсат етілген таңбалар
+    inp.addEventListener("input", () => {
+      let v = inp.value.replace(/−/g,"-").replace(/\./g,",").replace(/[^0-9,\-]/g,"");
+      v = v.replace(/(?!^)-/g,"");                 // минус тек басында
+      const p = v.split(","); if(p.length>2) v = p[0]+","+p.slice(1).join("");
+      set(v.replace(/^-/,"−"));
+    });
+    area.querySelectorAll(".pad button").forEach(b => b.onclick = () => {
+      let v = inp.value; const k = b.dataset.k;
+      if(/^\d$/.test(k)){ if(v.replace(/[−,]/g,"").length < 8) v += k; }
+      else if(k==="back") v = v.slice(0,-1);
+      else if(k==="C") v = "";
+      else if(k==="minus"){ if(v==="") v = "−"; }
+      else if(k==="pm"){ v = v.startsWith("−") ? v.slice(1) : "−" + v; }
+      else if(k==="comma"){ if(!v.includes(",")) v += (v===""||v==="−") ? "0," : ","; }
+      set(v);
+    });
+    if(st.answers[st.idx]) inp.value = st.answers[st.idx];
+  }
+  startTimer();
+}
+
+/* ===== Таймер ===== */
+function startTimer(){
+  clearInterval(timerId);
+  st.timeLeft = TIME_PER_Q;
+  drawTimer();
+  timerId = setInterval(() => {
+    st.timeLeft--;
+    drawTimer();
+    if(st.timeLeft <= 0){ clearInterval(timerId); nextQ(); }
+  }, 1000);
+}
+function drawTimer(){
+  const t = Math.max(0, st.timeLeft);
+  $("timer").textContent = pad2(Math.floor(t/60)) + ":" + pad2(t%60);
+  $("timer").classList.toggle("low", t <= 30);
+}
+
+/* ===== Келесі сұрақ ===== */
+$("btnNext").onclick = () => nextQ();
+function nextQ(){
+  clearInterval(timerId);
+  if(st.idx < st.qs.length - 1){ st.idx++; showQ(); }
+  else finish();
+}
+
+/* ===== Қойындыны жабуды бақылау ===== */
+document.addEventListener("visibilitychange", () => {
+  if(!st || st.finished) return;
+  if(document.hidden){
+    st.blurs++;
+  } else {
+    $("blurInfo").textContent = "Тест кезінде бет жабылған саны: " + st.blurs;
+    $("overlay").classList.add("show");
+  }
+});
+$("btnOk").onclick = () => $("overlay").classList.remove("show");
+window.addEventListener("beforeunload", e => { if(st && !st.finished){ e.preventDefault(); e.returnValue=""; } });
+document.addEventListener("contextmenu", e => { if(st && !st.finished) e.preventDefault(); });
+
+/* ===== Аяқтау ===== */
+let payload = null;
+function finish(){
+  st.finished = true;
+  $("overlay").classList.remove("show");
+  let correct = 0; const marks = [];
+  st.qs.forEach((q,i) => {
+    const a = st.answers[i];
+    const ok = q.t === "mc" ? a === q.a : Math.abs(parseNum(a) - q.a) < 1e-9;
+    if(ok) correct++;
+    marks.push((i+1) + ":" + (ok ? "1" : "0"));
+  });
+  const penalty = st.blurs > 0 ? PENALTY : 0;
+  const final = Math.max(0, correct - penalty);
+  const secs = Math.round((Date.now() - st.started)/1000);
+  const dur = pad2(Math.floor(secs/60)) + ":" + pad2(secs%60);
+
+  $("quiz").classList.add("hidden");
+  $("result").classList.remove("hidden");
+  $("resName").textContent = `${st.fio} · ${st.klass} · ${st.variant}-нұсқа`;
+  $("resScore").textContent = `${final} / ${MAX_SCORE}`;
+  $("resTable").innerHTML = `
+    <tr><td>Дұрыс жауаптар саны</td><td>${correct} / ${MAX_SCORE}</td></tr>
+    <tr><td>Қойындыны жапқан саны</td><td>${st.blurs}</td></tr>
+    <tr><td>Айыппұл</td><td>${penalty ? "−" + penalty + " балл" : "жоқ"}</td></tr>
+    <tr><td>Қорытынды балл</td><td><b>${final} / ${MAX_SCORE}</b></td></tr>
+    <tr><td>Тестке жұмсалған уақыт</td><td>${dur}</td></tr>`;
+
+  payload = { fio:st.fio, klass:st.klass, variant:st.variant, correct, penalty, score:final,
+              max:MAX_SCORE, blurs:st.blurs, details:marks.join(" "), duration:dur,
+              topic:"Аралас сандарды қосу. Аралас сандарды азайту" };
+  try{ localStorage.setItem("test5_mixed_last", JSON.stringify(payload)); }catch(e){}
+  send();
+}
+
+function send(){
+  const s = $("sendStatus");
+  s.className = "status"; s.textContent = "Нәтиже мұғалімге жіберілуде…";
+  $("retryBox").classList.add("hidden");
+  if(!/^https:\/\/script\.google\.com\//.test(SCRIPT_URL)){
+    s.className = "status bad"; s.textContent = "Apps Script сілтемесі көрсетілмеген (SCRIPT_URL). Нәтиже жіберілмеді.";
+    return;
+  }
+  fetch(SCRIPT_URL, { method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload) })
+    .then(() => { s.className = "status ok"; s.textContent = "Нәтиже мұғалімге жіберілді. Бетті жабуға болады."; })
+    .catch(() => { s.className = "status bad"; s.textContent = "Жіберу кезінде қате шықты. Интернетті тексеріп, қайта жіберіңіз."; $("retryBox").classList.remove("hidden"); });
+}
+$("btnRetry").onclick = send;
+</script>
+</body>
+</html>
